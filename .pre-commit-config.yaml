@@ -7,6 +7,7 @@ repos:
         args: [--allow-multiple-documents]
       - id: check-yaml
         exclude: ^charts/*/templates/
+        args: [--allow-multiple-documents]
 
   - repo: https://github.com/gruntwork-io/pre-commit
     rev: v0.0.9

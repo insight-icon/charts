@@ -4,11 +4,11 @@ metadata:
   annotations:
     kompose.cmd: kompose convert
     kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
   labels:
     kubernetes.io/cluster-service: "true"
     kubernetes.io/name: prep-node-data-vol
   name: prep
+
 spec:
   ports:
   - name: "9000"
@@ -19,5 +19,6 @@ spec:
     targetPort: 7100
   selector:
     io.kompose.service: prep
+
 status:
   loadBalancer: {}

@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "prep-node.statefulsetName" . }}
+  labels:
+    node: {{ .Release.Name }}
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      node: {{ .Release.Name }}
+      app: {{ .Release.Name }}
+  serviceName: {{ include "prep-node.statefulsetName" . }}
+  template:
+    metadata:
+      labels:
+        node: {{ .Release.Name }}
+        app: {{ .Release.Name }}
+    spec:
+      {{- if not .Values.generateCert}}
+      volumes:
+        - name: node-certificate
+          secret:
+            secretName: {{ include "prep-node.certificate-name" .}}
+      {{- end }}
+      {{- if not .Values.local }}
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+        runAsNonRoot: true
+      {{- end }}
+      initContainers:
+        {{- if .Values.local }}
+        - name: volume-mount-permissions-data
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /data"]
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+          volumeMounts:
+            - name: data
+              mountPath: /data
+        {{- end }}
+      containers:
+        - name: {{ .Release.Name }}
+          image: {{ .Values.image.repo }}:{{ .Values.image.tag }}
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - /src/entrypoint.sh
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            capabilities:
+              add:
+                - SYS_TIME
+          env:
+            - name: FASTEST_START
+              value: {{ .Values.fastestStart }}
+            - name: CERT_PATH
+              value: /cert
+            - name: ICON_LOG_LEVEL
+              value: {{ .Values.iconLogLevel }}
+            - name: LOOPCHAIN_LOG_LEVEL
+              value: {{ .Values.loopchainLogLevel }}
+            - name: NETWORK_ENV
+              value: {{ .Values.networkEnvironment }}
+            {{- if .Values.generateCert}}
+            - name: IS_AUTOGEN_CERT
+              value: "true"
+            {{- end}}
+            {{- if not .Values.generateCert }}
+            - name: PRIVATE_KEY_FILENAME
+              value: "cert.pem"
+            - name: PRIVATE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "prep-node.certificate-password" .}}
+                  key: password
+            {{- end }}
+          ports:
+            - containerPort: {{ .Values.gRPCPort }}
+              name: grpc
+            - containerPort: {{ .Values.rpcPort }}
+              name: json-rpc
+          readinessProbe:
+            failureThreshold: 100
+            httpGet:
+              path: /api/v1/status/peer
+              port: json-rpc
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            {{- if .Values.generateCert }}
+            - name: cert
+              mountPath: /cert
+            {{- else }}
+            - name: node-certificate
+              mountPath: /cert
+              readOnly: true
+            {{- end }}
+          resources:
+      {{ toYaml .Values.resources | indent 10 }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: {{ .Values.storage.accessModes }}
+        resources:
+          requests:
+            storage: {{ .Values.storage.dataSize }}
+    - metadata:
+        name: cert
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 100Mi

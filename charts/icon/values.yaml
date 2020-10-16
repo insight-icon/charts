@@ -1,0 +1,39 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: icon
+
+# Are you running this locally?
+local: false
+
+image:
+  repo: iconloop/prep-node
+  tag: 2009031457xdaf395
+
+# Node port settings
+gRPCPort: 7100
+rpcPort: 9000
+
+resources: {}
+#  requests:
+#    memory: "5Gi"
+#    cpu: "1.5"
+
+# Node storage
+storage:
+  dataSize: 360Gi
+  accessModes: [ "ReadWriteOnce" ]
+
+# Node settings
+fastestStart: "\"yes\""
+iconLogLevel: DEBUG
+loopchainLogLevel: DEBUG
+networkEnvironment: mainnet
+
+# Node certificate settings
+generateCert: true
+certificateContents: |-
+  -----BEGIN EC PRIVATE KEY-----
+  ... your key contents ...
+  -----END EC PRIVATE KEY-----
+certificatePassword: password123

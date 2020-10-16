@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  icon-node:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2020-10-15T23:16:54.511351919-07:00"
+    description: A Helm chart for ICON blockchain node
+    digest: 5a32cf89ced86534e2b73a3dac9ed12b89562563ba7ef162aca348319f106e80
+    name: icon-node
+    type: application
+    urls:
+    - https://github.com/insight-icon/charts/releases/download/icon-node-0.1.0/icon-node-0.1.0.tgz
+    version: 0.1.0
+generated: "2020-10-15T23:16:54.299289422-07:00"

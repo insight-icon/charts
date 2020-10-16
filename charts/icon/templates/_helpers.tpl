@@ -51,13 +51,33 @@ app.kubernetes.io/name: {{ include "prep-node.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "prep-node.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "prep-node.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+
+{{/* Returns the PSP name */}}
+{{- define "prep-node.podSecurityPolicyName" -}}
+{{ .Release.Name }}
 {{- end }}
+
+{{/* Returns the statefulset name */}}
+{{- define "prep-node.statefulsetName" -}}
+{{ .Release.Name }}
+{{- end }}
+
+{{/* Returns the certificate secret name */}}
+{{- define "prep-node.certificate-name" -}}
+{{ .Release.Name }}-node-certificate
+{{- end }}
+
+{{/* Returns the certificate secret name */}}
+{{- define "prep-node.certificate-password" -}}
+{{ .Release.Name }}-certificate-password
+{{- end }}
+
+{{/* Returns the gRPC service name */}}
+{{- define "prep-node.gRPCService" -}}
+{{ .Release.Name }}-grpc
+{{- end }}
+
+{{/* Returns the JSON-RPC service name */}}
+{{- define "prep-node.rpcService" -}}
+{{ .Release.Name }}-rpc
 {{- end }}

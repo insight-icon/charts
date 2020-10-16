@@ -1,22 +1,39 @@
-# Default values for elk.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: kube-system
+namespace: icon
 
-prepNode-serviceAccount:
-  create: true
-  annotations: {}
+# Are you running this locally?
+local: false
 
-prepNode-service:
-  port: 9000
-  protocol: TCP
-  targetPort: db
+image:
+  repo: iconloop/prep-node
+  tag: 2009031457xdaf395
 
-  resources:
-    limits:
-      cpu: 1000m
-    requests:
-      cpu: 100m  
+# Node port settings
+gRPCPort: 7100
+rpcPort: 9000
 
-prepNode-replicaCount: 1
+resources: {}
+#  requests:
+#    memory: "5Gi"
+#    cpu: "1.5"
+
+# Node storage
+storage:
+  dataSize: 360Gi
+  accessModes: [ "ReadWriteOnce" ]
+
+# Node settings
+fastestStart: "\"yes\""
+iconLogLevel: DEBUG
+loopchainLogLevel: DEBUG
+networkEnvironment: mainnet
+
+# Node certificate settings
+generateCert: true
+certificateContents: |-
+  -----BEGIN EC PRIVATE KEY-----
+  ... your key contents ...
+  -----END EC PRIVATE KEY-----
+certificatePassword: password123
